@@ -1,0 +1,6 @@
+%syntax-version=1.0.0
+%project=delivery_app
+%uri=https://github.com/DeliverMe/delivery_app
+
+create_core_tables 2026-11-18T15:10:00Z Joshua <josh@deliverme.local> # Create users, deliveries, PoD, audit_logs, blocked_ips, and webhooks tables
+seed_initial_data [create_core_tables] 2026-11-18T15:15:00Z Joshua <josh@deliverme.local> # Seed initial administrator and sample driver

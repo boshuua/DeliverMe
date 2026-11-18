@@ -1,0 +1,67 @@
+<div class="users-container">
+  <div class="section-header">
+    <div>
+      <h2>User Provisioning</h2>
+      <p class="section-desc">Create, manage, and configure Admin and Driver accounts.</p>
+    </div>
+    <div>
+      <button id="openProvisionModalBtn" class="provision-btn" (click)="openProvisionModal()">
+        + Provision New User
+      </button>
+    </div>
+  </div>
+
+  <!-- jQWidgets Users Grid -->
+  <div class="grid-card">
+    <div id="usersGrid"></div>
+  </div>
+
+  <!-- jQWidgets Provisioning Window Modal -->
+  <div id="userWindow">
+    <div>
+      <strong>Provision New User Account</strong>
+    </div>
+    <div class="modal-body">
+      @if (modalError) {
+        <div class="modal-alert error">{{ modalError }}</div>
+      }
+
+      <div class="form-group">
+        <label for="uName">Full Name *</label>
+        <input id="uName" type="text" [(ngModel)]="newFullName" placeholder="e.g. Jane Driver" />
+      </div>
+
+      <div class="form-group">
+        <label for="uEmail">Email Address *</label>
+        <input id="uEmail" type="email" [(ngModel)]="newEmail" placeholder="e.g. jane@deliverme.local" />
+      </div>
+
+      <div class="form-group">
+        <label for="uPass">Password * (Min 8 characters)</label>
+        <input id="uPass" type="password" [(ngModel)]="newPassword" placeholder="••••••••••••" />
+      </div>
+
+      <div class="form-group">
+        <label for="uRole">Role Assignment *</label>
+        <select id="uRole" [(ngModel)]="newRole">
+          <option value="DRIVER">Delivery Driver (Mobile Access)</option>
+          <option value="ADMIN">System Administrator (Full Access)</option>
+        </select>
+      </div>
+
+      <div class="form-checkbox">
+        <label>
+          <input type="checkbox" [(ngModel)]="newIsActive" />
+          <span>Account Active (Allowed to authenticate immediately)</span>
+        </label>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+        <button type="button" id="saveUserBtn" class="btn-save" [disabled]="isSaving" (click)="saveUser()">
+          {{ isSaving ? 'Provisioning...' : 'Create Account' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

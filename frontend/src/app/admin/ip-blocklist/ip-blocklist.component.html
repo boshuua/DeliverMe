@@ -1,0 +1,55 @@
+<div class="ip-container">
+  <div class="section-header">
+    <div>
+      <h2>Manual IP Blocklist Management</h2>
+      <p class="section-desc">Enforce security controls by manually adding or removing blacklisted IP addresses.</p>
+    </div>
+    <div>
+      <button id="openBlockModalBtn" class="btn-block" (click)="openBlockModal()">
+        + Manually Block IP
+      </button>
+    </div>
+  </div>
+
+  <div class="security-constraint-card">
+    <div class="constraint-icon">🛡️</div>
+    <div class="constraint-text">
+      <strong>System Security Rule:</strong>
+      <span>IP blocking is strictly manual. No automated bans are executed, ensuring legitimate users and drivers are never locked out inadvertently.</span>
+    </div>
+  </div>
+
+  <!-- jQWidgets Blocked IPs Grid -->
+  <div class="grid-card">
+    <div id="blockedIpGrid"></div>
+  </div>
+
+  <!-- Manual Block Window Modal -->
+  <div id="blockWindow">
+    <div>
+      <strong>Manually Block IP Address</strong>
+    </div>
+    <div class="modal-body">
+      @if (modalError) {
+        <div class="modal-alert error">{{ modalError }}</div>
+      }
+
+      <div class="form-group">
+        <label for="ipAddr">IP Address *</label>
+        <input id="ipAddr" type="text" [(ngModel)]="newIpAddress" placeholder="e.g. 192.168.1.150 or 203.0.113.1" />
+      </div>
+
+      <div class="form-group">
+        <label for="blockReason">Reason for Block</label>
+        <input id="blockReason" type="text" [(ngModel)]="newReason" placeholder="e.g. Repeated unauthorized access attempts" />
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+        <button type="button" id="saveBlockBtn" class="btn-confirm-block" [disabled]="isSaving" (click)="saveBlock()">
+          {{ isSaving ? 'Applying...' : 'Enforce Block' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

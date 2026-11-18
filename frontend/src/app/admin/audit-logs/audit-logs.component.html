@@ -1,0 +1,65 @@
+<div class="audit-container">
+  <div class="section-header">
+    <div>
+      <h2>Immutable Security Audit Logs</h2>
+      <p class="section-desc">Audit trail of logins, unauthenticated requests, delivery actions, and administrative operations.</p>
+    </div>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div class="filter-card">
+    <div class="filter-group">
+      <label for="actFilt">Filter Action:</label>
+      <input
+        id="actFilt"
+        type="text"
+        [(ngModel)]="filterAction"
+        placeholder="e.g. UNAUTHORIZED, LOGIN, DELIVERY"
+      />
+    </div>
+
+    <div class="filter-group">
+      <label for="ipFilt">Filter IP Address:</label>
+      <input
+        id="ipFilt"
+        type="text"
+        [(ngModel)]="filterIp"
+        placeholder="e.g. 192.168 or 127.0.0.1"
+      />
+    </div>
+
+    <div class="filter-buttons">
+      <button id="filterBtn" class="btn-filter" (click)="loadLogs()">Apply Filters</button>
+      <button id="clearBtn" class="btn-clear" (click)="clearFilters()">Clear</button>
+    </div>
+  </div>
+
+  <!-- jQWidgets Audit Grid -->
+  <div class="grid-card">
+    <div id="auditGrid"></div>
+  </div>
+
+  <!-- Metadata Details Window -->
+  <div id="metaWindow">
+    <div>
+      <strong>Audit Event Metadata</strong>
+    </div>
+    <div class="meta-modal-body">
+      @if (selectedMetadata) {
+        <div class="meta-summary">
+          <p><strong>Action:</strong> {{ selectedMetadata.action }}</p>
+          <p><strong>IP:</strong> <code>{{ selectedMetadata.ip }}</code></p>
+          <p><strong>User:</strong> {{ selectedMetadata.user }}</p>
+          <p><strong>Target:</strong> {{ selectedMetadata.entity }}</p>
+        </div>
+        <div class="raw-meta">
+          <strong>Raw JSON Payload:</strong>
+          <pre>{{ selectedMetadata.metadata | json }}</pre>
+        </div>
+      }
+      <div class="meta-modal-footer">
+        <button type="button" class="btn-close" (click)="closeMeta()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

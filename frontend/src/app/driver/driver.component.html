@@ -1,0 +1,254 @@
+<div class="driver-wrapper">
+  <!-- Driver Mobile Header -->
+  <header class="driver-header">
+    <div class="header-content">
+      <div class="brand">
+        <span class="brand-badge">🚚</span>
+        <div>
+          <h1 class="brand-title">DeliverMe</h1>
+          <span class="driver-name">{{ currentUser()?.full_name }}</span>
+        </div>
+      </div>
+      <button class="signout-btn" (click)="logout()">Sign Out</button>
+    </div>
+
+    <!-- Stepper indicator -->
+    <div class="stepper-bar">
+      <div class="step-item" [class.active]="currentStep === 1" [class.done]="currentStep > 1">
+        <span class="step-num">1</span>
+        <span class="step-label">Scan</span>
+      </div>
+      <div class="step-line" [class.done]="currentStep > 1"></div>
+
+      <div class="step-item" [class.active]="currentStep === 2" [class.done]="currentStep > 2">
+        <span class="step-num">2</span>
+        <span class="step-label">Photo</span>
+      </div>
+      <div class="step-line" [class.done]="currentStep > 2"></div>
+
+      <div class="step-item" [class.active]="currentStep === 3" [class.done]="currentStep > 3">
+        <span class="step-num">3</span>
+        <span class="step-label">Sign</span>
+      </div>
+      <div class="step-line" [class.done]="currentStep > 3"></div>
+
+      <div class="step-item" [class.active]="currentStep === 4" [class.done]="currentStep === 5">
+        <span class="step-num">4</span>
+        <span class="step-label">Submit</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Step Content -->
+  <main class="driver-body">
+    <!-- STEP 1: QR SCAN -->
+    @if (currentStep === 1) {
+      <div class="step-card">
+        <div class="step-card-header">
+          <h2>Step 1: Scan Package QR Code</h2>
+          <p>Scan the code on the shipping label to start delivery.</p>
+        </div>
+
+        @if (scanError) {
+          <div class="error-banner">{{ scanError }}</div>
+        }
+
+        <div class="camera-section">
+          @if (isScanning) {
+            <div id="qr-reader" class="qr-camera-box"></div>
+            <button type="button" class="btn-cancel-scan" (click)="stopCameraScanner()">
+              ✕ Stop Camera Scanner
+            </button>
+          } @else {
+            <button type="button" class="btn-start-scan" (click)="startCameraScanner()">
+              📷 Open Camera QR Scanner
+            </button>
+          }
+        </div>
+
+        <div class="divider">
+          <span>OR ENTER CODE MANUALLY</span>
+        </div>
+
+        <div class="manual-entry-box">
+          <input
+            type="text"
+            [(ngModel)]="manualCode"
+            placeholder="e.g. TRK-987654321 or DEL-10001"
+            (keyup.enter)="submitManualCode()"
+          />
+          <button type="button" class="btn-submit-code" (click)="submitManualCode()">
+            Lookup Package
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- STEP 2: PHOTO PROOF -->
+    @if (currentStep === 2 && activeDelivery) {
+      <div class="step-card">
+        <div class="delivery-meta-banner">
+          <div>
+            <strong>{{ activeDelivery.recipient_name }}</strong>
+            <p>{{ activeDelivery.delivery_address }}</p>
+          </div>
+          <span class="code-badge">{{ activeDelivery.tracking_number }}</span>
+        </div>
+
+        <div class="step-card-header">
+          <h2>Step 2: Capture Proof of Delivery Photo</h2>
+          <p>Take a clear photo showing the package placed at the destination.</p>
+        </div>
+
+        @if (photoError) {
+          <div class="error-banner">{{ photoError }}</div>
+        }
+
+        <div class="photo-capture-area">
+          @if (capturedPhotoPreview) {
+            <div class="preview-box">
+              <img [src]="capturedPhotoPreview" alt="Proof of delivery preview" class="preview-img" />
+              <button type="button" class="btn-retake" (click)="retakePhoto()">Retake Photo</button>
+            </div>
+          } @else {
+            <label class="camera-upload-btn">
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                (change)="onPhotoSelected($event)"
+              />
+              <span class="cam-icon">📸</span>
+              <span class="cam-label">Take Package Photo</span>
+            </label>
+          }
+        </div>
+
+        <div class="step-nav-footer">
+          <button type="button" class="btn-back" (click)="currentStep = 1">← Back</button>
+          <button
+            type="button"
+            class="btn-forward"
+            [disabled]="!capturedPhotoFile"
+            (click)="proceedToSignature()"
+          >
+            Next: Customer Signature →
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- STEP 3: SIGNATURE CANVAS -->
+    @if (currentStep === 3 && activeDelivery) {
+      <div class="step-card">
+        <div class="step-card-header">
+          <h2>Step 3: Collect Customer Signature</h2>
+          <p>Please present your device to the recipient to sign below.</p>
+        </div>
+
+        @if (sigError) {
+          <div class="error-banner">{{ sigError }}</div>
+        }
+
+        <div class="signature-canvas-container">
+          <canvas
+            #signatureCanvas
+            class="sig-canvas"
+            (mousedown)="startDraw($event)"
+            (mousemove)="draw($event)"
+            (mouseup)="endDraw()"
+            (mouseleave)="endDraw()"
+            (touchstart)="startDraw($event)"
+            (touchmove)="draw($event)"
+            (touchend)="endDraw()"
+          ></canvas>
+          <div class="canvas-actions">
+            <button type="button" class="btn-clear-sig" (click)="clearSignature()">Clear Signature</button>
+          </div>
+        </div>
+
+        <div class="step-nav-footer">
+          <button type="button" class="btn-back" (click)="currentStep = 2">← Back to Photo</button>
+          <button type="button" class="btn-forward" (click)="proceedToReview()">
+            Next: Review & Submit →
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- STEP 4: GEOLOCATION & SUBMISSION -->
+    @if (currentStep === 4 && activeDelivery) {
+      <div class="step-card">
+        <div class="step-card-header">
+          <h2>Step 4: Geolocation & Submission</h2>
+          <p>Confirm delivery artifacts and finalize delivery.</p>
+        </div>
+
+        @if (submitError) {
+          <div class="error-banner">{{ submitError }}</div>
+        }
+
+        @if (gpsError) {
+          <div class="warning-banner">{{ gpsError }}</div>
+        }
+
+        <!-- Artifacts Summary -->
+        <div class="summary-artifacts">
+          <div class="summary-item">
+            <span class="summary-label">Photo Proof:</span>
+            <img [src]="capturedPhotoPreview" alt="PoD Photo" class="mini-thumb" />
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Signature:</span>
+            <img [src]="signatureDataUrl" alt="Signature" class="mini-thumb sig-thumb" />
+          </div>
+        </div>
+
+        <!-- GPS Coordinates Card -->
+        <div class="gps-status-card">
+          <div class="gps-icon">📍</div>
+          <div class="gps-info">
+            <strong>Logged Delivery Coordinates:</strong>
+            @if (isLocating) {
+              <span>Acquiring GPS location...</span>
+            } @else if (gpsCoords) {
+              <code>{{ gpsCoords.latitude }}, {{ gpsCoords.longitude }}</code>
+              @if (gpsCoords.accuracy) {
+                <small>(Accuracy: ±{{ gpsCoords.accuracy }}m)</small>
+              }
+            }
+          </div>
+          <button type="button" class="btn-refresh-gps" (click)="acquireGeolocation()">↻ Refresh</button>
+        </div>
+
+        <div class="step-nav-footer">
+          <button type="button" class="btn-back" (click)="currentStep = 3">← Back to Signature</button>
+          <button
+            type="button"
+            class="btn-complete"
+            [disabled]="isSubmitting"
+            (click)="submitPoD()"
+          >
+            {{ isSubmitting ? 'Submitting Delivery...' : '✓ Complete Delivery' }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- STEP 5: SUCCESS -->
+    @if (currentStep === 5) {
+      <div class="step-card success-card">
+        <div class="success-check-icon">✓</div>
+        <h2>Delivery Completed!</h2>
+        <p class="success-message">
+          Proof of Delivery, customer signature, and geolocation coordinates have been securely uploaded.
+          The Admin management portal was alerted in real time.
+        </p>
+
+        <button type="button" class="btn-deliver-next" (click)="resetWorkflow()">
+          🚚 Deliver Next Package
+        </button>
+      </div>
+    }
+  </main>
+</div>

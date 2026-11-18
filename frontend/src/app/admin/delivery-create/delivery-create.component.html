@@ -1,0 +1,118 @@
+<div class="create-delivery-container">
+  <div class="breadcrumb">
+    <a routerLink="/admin/deliveries">← Back to Deliveries</a>
+  </div>
+
+  <div class="create-card">
+    <div class="card-header">
+      <h2>Create & Dispatch Delivery</h2>
+      <p class="subtitle">Assign package details and dispatch to driver portal.</p>
+    </div>
+
+    @if (errorMessage) {
+      <div class="alert-box error">
+        {{ errorMessage }}
+      </div>
+    }
+
+    @if (successDelivery) {
+      <div class="success-banner">
+        <div class="success-icon">✓</div>
+        <div class="success-content">
+          <h3>Delivery Dispatched Successfully!</h3>
+          <p>Package tracking number: <strong>{{ successDelivery.tracking_number }}</strong></p>
+          <p>Delivery reference: <strong>{{ successDelivery.delivery_number }}</strong></p>
+
+          <div class="qr-preview-box">
+            <span class="qr-label">Package QR Code Payload:</span>
+            <code class="qr-payload">{{ successDelivery.tracking_number }}</code>
+            <p class="qr-helper">Drivers scan this QR code using the Driver Portal mobile scanner.</p>
+          </div>
+
+          <div class="success-actions">
+            <button class="action-btn secondary" (click)="createAnother()">Create Another Delivery</button>
+            <a routerLink="/admin/deliveries" class="action-btn primary">View in Dashboard</a>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <form (ngSubmit)="onSubmit()" class="delivery-form">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="delNum">Delivery Number *</label>
+            <input
+              id="delNum"
+              type="text"
+              name="deliveryNumber"
+              [(ngModel)]="deliveryNumber"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="trkNum">Tracking Number (QR Code Target) *</label>
+            <div class="input-with-btn">
+              <input
+                id="trkNum"
+                type="text"
+                name="trackingNumber"
+                [(ngModel)]="trackingNumber"
+                required
+              />
+              <button
+                type="button"
+                id="genBtn"
+                class="refresh-btn"
+                (click)="generateNumbers()"
+                title="Regenerate Codes"
+              >
+                ↻
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="recip">Recipient Full Name *</label>
+          <input
+            id="recip"
+            type="text"
+            name="recipientName"
+            [(ngModel)]="recipientName"
+            placeholder="e.g. John Doe"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="address">Delivery Destination Address *</label>
+          <textarea
+            id="address"
+            name="deliveryAddress"
+            [(ngModel)]="deliveryAddress"
+            rows="3"
+            placeholder="e.g. 123 Maple Street, Suite 400, Seattle, WA 98101"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="driver">Assign Driver (Optional)</label>
+          <select id="driver" name="assignedDriverId" [(ngModel)]="assignedDriverId">
+            <option [ngValue]="null">-- Unassigned (Driver can claim via scan) --</option>
+            @for (driver of drivers; track driver.id) {
+              <option [value]="driver.id">{{ driver.full_name }} ({{ driver.email }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/admin/deliveries" class="cancel-link">Cancel</a>
+          <button type="submit" id="submitBtn" class="submit-btn" [disabled]="isLoading">
+            {{ isLoading ? 'Dispatching...' : 'Dispatch Delivery' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

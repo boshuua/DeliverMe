@@ -1,0 +1,65 @@
+<div class="admin-wrapper">
+  <!-- Top Navigation Header -->
+  <header class="admin-header">
+    <div class="header-left">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <span class="brand-title">DeliverMe Admin</span>
+      </div>
+
+      <nav class="nav-links">
+        <a routerLink="/admin/deliveries" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+          Deliveries
+        </a>
+        <a routerLink="/admin/deliveries/new" routerLinkActive="active">
+          + Create Delivery
+        </a>
+        <a routerLink="/admin/users" routerLinkActive="active">
+          User Provisioning
+        </a>
+        <a routerLink="/admin/audit-logs" routerLinkActive="active">
+          Audit Logs
+        </a>
+        <a routerLink="/admin/ip-blocklist" routerLinkActive="active">
+          IP Blocklist
+        </a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <div class="ws-status" [title]="isConnected ? 'WebSocket Stream Connected' : 'WebSocket Disconnected'">
+        <span class="status-dot" [class.connected]="isConnected"></span>
+        <span class="status-label">{{ isConnected ? 'Live' : 'Offline' }}</span>
+      </div>
+
+      <div class="user-profile">
+        <span class="user-name">{{ currentUser()?.full_name }}</span>
+        <span class="user-role-badge">ADMIN</span>
+      </div>
+
+      <button class="logout-btn" (click)="logout()" title="Sign Out">
+        Sign Out
+      </button>
+    </div>
+  </header>
+
+  <!-- Real-time jQWidgets Notification container -->
+  <div id="adminNotification">
+    @if (latestAlert) {
+      <div class="notification-body">
+        <strong>{{ latestAlert.title }}</strong>
+        <p>{{ latestAlert.message }}</p>
+        <small>{{ latestAlert.time }}</small>
+      </div>
+    }
+  </div>
+
+  <!-- Main View Router Outlet -->
+  <main class="admin-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
