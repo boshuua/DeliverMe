@@ -189,13 +189,3 @@ delivery-app/
 ```
 
 ---
-
-## 8. Instructions for AI Development Agents
-
-When implementing this repository, follow this execution order:
-1. **Database First:** Scaffold the `/database` directory with Sqitch (`sqitch.conf`, `sqitch.plan`, and `deploy`/`revert`/`verify` SQL scripts) for all core tables.
-2. **Backend Core:** Initialize `/backend` with TypeScript, Express, `pg`, `socket.io`, `multer`, and `jsonwebtoken`. Implement the `manualIpBlock` middleware, `auditLogger` middleware, Auth endpoints, Admin endpoints, and Driver PoD completion endpoint.
-3. **Frontend Setup:** Initialize `/frontend` with Angular CLI and install `jqwidgets-ng` / `jqwidgets-framework`. Configure `jqx.base.css` in `angular.json`.
-4. **Admin Module:** Build the secure Admin layout using jQWidgets (`jqxGrid` for deliveries/users/audit logs, `jqxNotification` for real-time WebSocket alerts, and manual IP blocking controls).
-5. **Driver Module:** Build the mobile-friendly Driver flow: QR Scanner -> Camera Photo Capture -> Signature Canvas -> Geolocation Capture -> Submit.
-6. **Verification:** Ensure no automatic IP blocking exists, all DB changes are in Sqitch, and all PoD photos/signatures are protected behind Admin authentication.
