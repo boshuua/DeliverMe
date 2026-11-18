@@ -1,7 +1,5 @@
 # Delivery Management & Proof-of-Delivery (PoD) Application
 
-> **Note to Coding AI / Development Agents:** This document serves as the primary architectural blueprint, functional specification, and implementation guide for this project. Adhere strictly to the **Tech Stack**, **Security Constraints**, and **Workflow Rules** defined below. Do not substitute the specified UI framework, database, or migration tool.
-
 ---
 
 ## 1. Project Overview
