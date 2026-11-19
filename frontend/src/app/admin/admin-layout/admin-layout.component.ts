@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service.js';
 import { WebSocketService } from '../../core/services/websocket.service.js';
+import { IconService } from '../../core/services/icon.service.js';
 
 declare var $: any;
 
@@ -18,14 +19,15 @@ export class AdminLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
   private authService = inject(AuthService);
   private wsService = inject(WebSocketService);
   private router = inject(Router);
+  readonly iconService = inject(IconService);
+  readonly icons = this.iconService.icons;
 
   currentUser = this.authService.currentUser;
   isConnected = false;
+  isMobileMenuOpen = false;
   latestAlert: { title: string; message: string; type: 'info' | 'success' | 'warning' | 'error'; time: string } | null = null;
 
   private subscriptions = new Subscription();
-
-  constructor() {}
 
   ngOnInit(): void {
     this.wsService.connect();
@@ -80,15 +82,23 @@ export class AdminLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     if (typeof $ !== 'undefined' && $.fn.jqxNotification) {
       $('#adminNotification').jqxNotification({
-        width: 350,
+        width: 360,
         position: 'top-right',
-        opacity: 0.95,
+        opacity: 0.98,
         autoOpen: false,
         autoClose: true,
         autoCloseDelay: 6000,
         template: 'info',
       });
     }
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
   }
 
   showAlert(title: string, message: string, type: 'info' | 'success' | 'warning' | 'error'): void {

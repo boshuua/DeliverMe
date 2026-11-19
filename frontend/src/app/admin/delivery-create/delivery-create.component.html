@@ -1,37 +1,57 @@
 <div class="create-delivery-container">
   <div class="breadcrumb">
-    <a routerLink="/admin/deliveries">← Back to Deliveries</a>
+    <a routerLink="/admin/deliveries">
+      <span [innerHTML]="iconService.getSafeSvg(icons.arrowLeft, { size: 12 })"></span>
+      Back to Deliveries Manifest
+    </a>
   </div>
 
   <div class="create-card">
     <div class="card-header">
-      <h2>Create & Dispatch Delivery</h2>
-      <p class="subtitle">Assign package details and dispatch to driver portal.</p>
+      <div class="header-icon">
+        <span [innerHTML]="iconService.getSafeSvg(icons.truckFast, { size: 20, color: '#2563eb', marginRight: 0 })"></span>
+      </div>
+      <div>
+        <h2>Create & Dispatch Delivery</h2>
+        <p class="subtitle">Assign package tracking numbers and dispatch directly to the driver mobile portal.</p>
+      </div>
     </div>
 
     @if (errorMessage) {
       <div class="alert-box error">
-        {{ errorMessage }}
+        <span [innerHTML]="iconService.getSafeSvg(icons.danger, { size: 14, color: '#dc2626' })"></span>
+        <span>{{ errorMessage }}</span>
       </div>
     }
 
     @if (successDelivery) {
       <div class="success-banner">
-        <div class="success-icon">✓</div>
+        <div class="success-icon">
+          <span [innerHTML]="iconService.getSafeSvg(icons.circleCheck, { size: 28, color: '#16a34a', marginRight: 0 })"></span>
+        </div>
         <div class="success-content">
           <h3>Delivery Dispatched Successfully!</h3>
-          <p>Package tracking number: <strong>{{ successDelivery.tracking_number }}</strong></p>
-          <p>Delivery reference: <strong>{{ successDelivery.delivery_number }}</strong></p>
+          <p>Package Tracking Number: <strong class="mono">{{ successDelivery.tracking_number }}</strong></p>
+          <p>Delivery Reference: <strong class="mono">{{ successDelivery.delivery_number }}</strong></p>
 
           <div class="qr-preview-box">
-            <span class="qr-label">Package QR Code Payload:</span>
+            <div class="qr-badge">
+              <span [innerHTML]="iconService.getSafeSvg(icons.qrcode, { size: 14, color: '#15803d' })"></span>
+              <strong>Driver QR Code Payload Target</strong>
+            </div>
             <code class="qr-payload">{{ successDelivery.tracking_number }}</code>
-            <p class="qr-helper">Drivers scan this QR code using the Driver Portal mobile scanner.</p>
+            <p class="qr-helper">Drivers scan this code from their mobile device or enter it directly.</p>
           </div>
 
           <div class="success-actions">
-            <button class="action-btn secondary" (click)="createAnother()">Create Another Delivery</button>
-            <a routerLink="/admin/deliveries" class="action-btn primary">View in Dashboard</a>
+            <button class="action-btn secondary" (click)="createAnother()">
+              <span [innerHTML]="iconService.getSafeSvg(icons.plus, { size: 13 })"></span>
+              Create Another Delivery
+            </button>
+            <a routerLink="/admin/deliveries" class="action-btn primary">
+              <span [innerHTML]="iconService.getSafeSvg(icons.eye, { size: 13, color: '#ffffff' })"></span>
+              View in Manifest
+            </a>
           </div>
         </div>
       </div>
@@ -39,7 +59,10 @@
       <form (ngSubmit)="onSubmit()" class="delivery-form">
         <div class="form-row-2">
           <div class="form-group">
-            <label for="delNum">Delivery Number *</label>
+            <label for="delNum">
+              <span [innerHTML]="iconService.getSafeSvg(icons.box, { size: 13, color: '#64748b' })"></span>
+              Delivery Reference # *
+            </label>
             <input
               id="delNum"
               type="text"
@@ -50,7 +73,10 @@
           </div>
 
           <div class="form-group">
-            <label for="trkNum">Tracking Number (QR Code Target) *</label>
+            <label for="trkNum">
+              <span [innerHTML]="iconService.getSafeSvg(icons.qrcode, { size: 13, color: '#64748b' })"></span>
+              Tracking Number (Package QR Target) *
+            </label>
             <div class="input-with-btn">
               <input
                 id="trkNum"
@@ -64,16 +90,19 @@
                 id="genBtn"
                 class="refresh-btn"
                 (click)="generateNumbers()"
-                title="Regenerate Codes"
+                title="Regenerate Reference Codes"
               >
-                ↻
+                <span [innerHTML]="iconService.getSafeSvg(icons.rotate, { size: 13, color: '#475569', marginRight: 0 })"></span>
               </button>
             </div>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="recip">Recipient Full Name *</label>
+          <label for="recip">
+            <span [innerHTML]="iconService.getSafeSvg(icons.userCheck, { size: 13, color: '#64748b' })"></span>
+            Recipient Full Name *
+          </label>
           <input
             id="recip"
             type="text"
@@ -85,7 +114,10 @@
         </div>
 
         <div class="form-group">
-          <label for="address">Delivery Destination Address *</label>
+          <label for="address">
+            <span [innerHTML]="iconService.getSafeSvg(icons.mapPin, { size: 13, color: '#64748b' })"></span>
+            Delivery Destination Address *
+          </label>
           <textarea
             id="address"
             name="deliveryAddress"
@@ -97,9 +129,12 @@
         </div>
 
         <div class="form-group">
-          <label for="driver">Assign Driver (Optional)</label>
+          <label for="driver">
+            <span [innerHTML]="iconService.getSafeSvg(icons.truck, { size: 13, color: '#64748b' })"></span>
+            Assign Delivery Driver (Optional)
+          </label>
           <select id="driver" name="assignedDriverId" [(ngModel)]="assignedDriverId">
-            <option [ngValue]="null">-- Unassigned (Driver can claim via scan) --</option>
+            <option [ngValue]="null">-- Unassigned (Driver can claim via QR scan) --</option>
             @for (driver of drivers; track driver.id) {
               <option [value]="driver.id">{{ driver.full_name }} ({{ driver.email }})</option>
             }
@@ -109,7 +144,12 @@
         <div class="form-actions">
           <a routerLink="/admin/deliveries" class="cancel-link">Cancel</a>
           <button type="submit" id="submitBtn" class="submit-btn" [disabled]="isLoading">
-            {{ isLoading ? 'Dispatching...' : 'Dispatch Delivery' }}
+            @if (isLoading) {
+              <span>Dispatching...</span>
+            } @else {
+              <span [innerHTML]="iconService.getSafeSvg(icons.truckFast, { size: 14, color: '#ffffff' })"></span>
+              <span>Dispatch Delivery</span>
+            }
           </button>
         </div>
       </form>

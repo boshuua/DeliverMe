@@ -75,7 +75,7 @@ app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
-// Start Server & prime cache
+// Start Server & prime blocked IP cache
 if (process.env.NODE_ENV !== 'test') {
   refreshBlockedIpCache()
     .then(() => {

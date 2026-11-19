@@ -1,53 +1,114 @@
 <div class="ip-container">
+  <!-- Page Header -->
   <div class="section-header">
     <div>
-      <h2>Manual IP Blocklist Management</h2>
+      <div class="title-with-badge">
+        <h2>Manual IP Blocklist Management</h2>
+        <span class="count-badge">{{ blockedIps.length }} Blocked</span>
+      </div>
       <p class="section-desc">Enforce security controls by manually adding or removing blacklisted IP addresses.</p>
     </div>
-    <div>
-      <button id="openBlockModalBtn" class="btn-block" (click)="openBlockModal()">
-        + Manually Block IP
+    <div class="header-actions">
+      <button id="openBlockModalBtn" class="btn-block-action" (click)="openBlockModal()">
+        <span [innerHTML]="iconService.getSafeSvg(iconService.icons.ban, { size: 14, color: '#ffffff' })"></span>
+        <span>+ Manually Block IP</span>
       </button>
     </div>
   </div>
 
+  <!-- Security Constraint Callout -->
   <div class="security-constraint-card">
-    <div class="constraint-icon">🛡️</div>
+    <div class="constraint-icon" [innerHTML]="iconService.getSafeSvg(iconService.icons.shieldHalved, { size: 24, color: '#b45309' })"></div>
     <div class="constraint-text">
-      <strong>System Security Rule:</strong>
+      <strong>Strict Security Policy: Manual Enforcement Only</strong>
       <span>IP blocking is strictly manual. No automated bans are executed, ensuring legitimate users and drivers are never locked out inadvertently.</span>
     </div>
   </div>
 
-  <!-- jQWidgets Blocked IPs Grid -->
+  <!-- Blocked IPs Grid or State Containers -->
   <div class="grid-card">
-    <div id="blockedIpGrid"></div>
+    <div class="grid-toolbar">
+      <div class="toolbar-title">
+        <span [innerHTML]="iconService.getSafeSvg(iconService.icons.shieldHalved, { size: 14, color: '#64748b' })"></span>
+        <span>Active Enforced IP Restrictions</span>
+      </div>
+      <button class="refresh-grid-btn" (click)="loadBlockedIps()">
+        <span [innerHTML]="iconService.getSafeSvg(iconService.icons.refresh, { size: 12, color: '#475569' })"></span>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    @if (isLoading) {
+      <div class="loading-state">
+        <span class="loading-spinner"></span>
+        <span>Loading active IP blocks...</span>
+      </div>
+    } @else if (blockedIps.length === 0) {
+      <div class="empty-state">
+        <span class="empty-icon" [innerHTML]="iconService.getSafeSvg(iconService.icons.shield, { size: 40, color: '#10b981' })"></span>
+        <h4>No Blocked IPs</h4>
+        <p>There are currently no active IP blocks enforced on the system. All incoming traffic is normal.</p>
+      </div>
+    }
+
+    <div id="blockedIpGrid" [style.display]="!isLoading && blockedIps.length > 0 ? 'block' : 'none'"></div>
   </div>
 
-  <!-- Manual Block Window Modal -->
+  <!-- Manual Block Window Modal (jQWidgets Window) -->
   <div id="blockWindow">
-    <div>
+    <div class="modal-header-bar">
+      <span [innerHTML]="iconService.getSafeSvg(iconService.icons.ban, { size: 16, color: '#dc2626' })"></span>
       <strong>Manually Block IP Address</strong>
     </div>
     <div class="modal-body">
       @if (modalError) {
-        <div class="modal-alert error">{{ modalError }}</div>
+        <div class="modal-alert error">
+          <span [innerHTML]="iconService.getSafeSvg(iconService.icons.warning, { size: 14, color: '#991b1b' })"></span>
+          <span>{{ modalError }}</span>
+        </div>
       }
 
       <div class="form-group">
-        <label for="ipAddr">IP Address *</label>
-        <input id="ipAddr" type="text" [(ngModel)]="newIpAddress" placeholder="e.g. 192.168.1.150 or 203.0.113.1" />
+        <label for="ipAddr">Target IP Address *</label>
+        <div class="input-with-icon">
+          <input
+            id="ipAddr"
+            type="text"
+            [(ngModel)]="newIpAddress"
+            placeholder="e.g. 192.168.1.150 or 203.0.113.45"
+            autocomplete="off"
+          />
+        </div>
+        <small class="field-hint">IPv4 or IPv6 address to reject immediately on all HTTP and WebSocket connections.</small>
       </div>
 
       <div class="form-group">
-        <label for="blockReason">Reason for Block</label>
-        <input id="blockReason" type="text" [(ngModel)]="newReason" placeholder="e.g. Repeated unauthorized access attempts" />
+        <label for="blockReason">Incident / Justification Note</label>
+        <input
+          id="blockReason"
+          type="text"
+          [(ngModel)]="newReason"
+          placeholder="e.g. Brute-force credential stuffing or suspicious unauthorized API probe"
+        />
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
-        <button type="button" id="saveBlockBtn" class="btn-confirm-block" [disabled]="isSaving" (click)="saveBlock()">
-          {{ isSaving ? 'Applying...' : 'Enforce Block' }}
+        <button type="button" class="btn-cancel" (click)="closeModal()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          id="saveBlockBtn"
+          class="btn-confirm-block"
+          [disabled]="isSaving"
+          (click)="saveBlock()"
+        >
+          @if (isSaving) {
+            <span>Applying Block...</span>
+          } @else {
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.ban, { size: 14, color: '#ffffff' })"></span>
+            <span>Enforce Block</span>
+          }
         </button>
       </div>
     </div>

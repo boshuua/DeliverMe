@@ -36,6 +36,16 @@
 
   <!-- jQWidgets Audit Grid -->
   <div class="grid-card">
+    <div class="grid-toolbar">
+      <div class="toolbar-title">
+        <span [innerHTML]="iconService.getSafeSvg(iconService.icons.audit, { size: 14, color: '#64748b' })"></span>
+        <span>Audit Trail Events</span>
+      </div>
+      <button class="refresh-grid-btn" (click)="loadLogs()">
+        <span [innerHTML]="iconService.getSafeSvg(iconService.icons.refresh, { size: 12, color: '#475569' })"></span>
+        <span>Refresh</span>
+      </button>
+    </div>
     <div id="auditGrid"></div>
   </div>
 

@@ -1,23 +1,186 @@
-/* Global Styles */
-* {
+/* =========================================================
+   DeliverMe - Modern Professional Enterprise Theme
+   ========================================================= */
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Colors */
+  --slate-950: #020617;
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-400: #94a3b8;
+  --slate-300: #cbd5e1;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50:  #f8fafc;
+
+  --brand-blue: #2563eb;
+  --brand-blue-hover: #1d4ed8;
+  --brand-blue-light: #eff6ff;
+  --brand-blue-border: #bfdbfe;
+
+  --emerald-500: #10b981;
+  --emerald-600: #059669;
+  --emerald-50: #ecfdf5;
+  --emerald-200: #a7f3d0;
+
+  --amber-500: #f59e0b;
+  --amber-50: #fffbeb;
+  --amber-200: #fde68a;
+
+  --rose-500: #f43f5e;
+  --rose-600: #e11d48;
+  --rose-50: #fff1f2;
+  --rose-200: #fecdd3;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+}
+
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
 html, body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #f8fafc;
-  color: #0f172a;
+  font-family: var(--font-sans);
+  background-color: var(--slate-50);
+  color: var(--slate-900);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
-/* Fix jQWidgets default styling fonts */
-.jqx-widget, .jqx-widget-content, .jqx-widget-header {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+/* =========================================================
+   jQWidgets Enterprise Overrides
+   ========================================================= */
+
+.jqx-widget,
+.jqx-widget-content,
+.jqx-widget-header {
+  font-family: var(--font-sans) !important;
+  border-color: var(--slate-200) !important;
+}
+
+.jqx-grid {
+  border: 1px solid var(--slate-200) !important;
+  border-radius: var(--radius-md) !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-sm) !important;
+  background: #ffffff !important;
+}
+
+.grid-card .jqx-grid {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.jqx-grid-header {
+  background: var(--slate-50) !important;
+  border-bottom: 1px solid var(--slate-200) !important;
+  height: 44px !important;
+}
+
+.jqx-grid-column-header {
+  font-weight: 700 !important;
+  font-size: 0.72rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--slate-500) !important;
+  background: var(--slate-50) !important;
+  border-color: var(--slate-200) !important;
+  padding-left: 6px !important;
 }
 
 .jqx-grid-cell {
+  font-size: 0.85rem !important;
+  color: var(--slate-800) !important;
+  border-color: #f1f5f9 !important;
+  box-sizing: border-box !important;
+}
+
+.jqx-grid-cell-middle-align {
+  margin-top: 0 !important;
+  height: 100% !important;
   display: flex !important;
-  align-items: center;
+  align-items: center !important;
+  padding: 0 12px !important;
+  box-sizing: border-box !important;
+  font-size: 0.85rem !important;
+  color: var(--slate-700) !important;
+}
+
+.jqx-grid-cell-hover {
+  background-color: #f8fafc !important;
+}
+
+.jqx-grid-cell-selected {
+  background-color: #eff6ff !important;
+  color: #1e40af !important;
+}
+
+.jqx-grid-pager {
+  background: var(--slate-50) !important;
+  border-top: 1px solid var(--slate-200) !important;
+  font-size: 0.8rem !important;
+  height: 40px !important;
+}
+
+/* Suppress demo watermark link so it doesn't bleed into cells or buttons */
+a[href*="jqwidgets.com"],
+div[style*="z-index: 99999"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.jqx-window {
+  border: 1px solid var(--slate-200) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  overflow: hidden !important;
+}
+
+.jqx-window-header {
+  background: var(--slate-900) !important;
+  color: #ffffff !important;
+  padding: 12px 16px !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: -0.01em !important;
+  border-bottom: none !important;
+}
+
+.jqx-window-content {
+  background: #ffffff !important;
+  padding: 16px !important;
+  color: var(--slate-800) !important;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--slate-100);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--slate-300);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--slate-400);
 }

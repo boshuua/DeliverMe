@@ -1,252 +1,389 @@
 <div class="driver-wrapper">
-  <!-- Driver Mobile Header -->
+  <!-- Driver Mobile & Tablet Header -->
   <header class="driver-header">
-    <div class="header-content">
+    <div class="header-container">
       <div class="brand">
-        <span class="brand-badge">🚚</span>
+        <div class="brand-icon-box" [innerHTML]="iconService.getSafeSvg(iconService.icons.truckFast, { size: 22, color: '#ffffff' })"></div>
         <div>
           <h1 class="brand-title">DeliverMe</h1>
-          <span class="driver-name">{{ currentUser()?.full_name }}</span>
+          <div class="driver-badge">
+            <span class="driver-dot"></span>
+            <span class="driver-name">{{ currentUser()?.full_name || 'Driver' }}</span>
+          </div>
         </div>
       </div>
-      <button class="signout-btn" (click)="logout()">Sign Out</button>
+
+      <button class="signout-btn" (click)="logout()" title="Sign out of driver session">
+        <span [innerHTML]="iconService.getSafeSvg(iconService.icons.logout, { size: 14, color: '#94a3b8' })"></span>
+        <span class="signout-text">Sign Out</span>
+      </button>
     </div>
 
-    <!-- Stepper indicator -->
-    <div class="stepper-bar">
+    <!-- Responsive Stepper Bar -->
+    <nav class="stepper-nav" aria-label="Delivery Progress">
       <div class="step-item" [class.active]="currentStep === 1" [class.done]="currentStep > 1">
-        <span class="step-num">1</span>
-        <span class="step-label">Scan</span>
+        <div class="step-circle">
+          @if (currentStep > 1) {
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.check, { size: 12, color: '#ffffff' })"></span>
+          } @else {
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.qrcode, { size: 13, color: currentStep === 1 ? '#ffffff' : '#94a3b8' })"></span>
+          }
+        </div>
+        <span class="step-label">1. Scan</span>
       </div>
-      <div class="step-line" [class.done]="currentStep > 1"></div>
+
+      <div class="step-connector" [class.done]="currentStep > 1"></div>
 
       <div class="step-item" [class.active]="currentStep === 2" [class.done]="currentStep > 2">
-        <span class="step-num">2</span>
-        <span class="step-label">Photo</span>
+        <div class="step-circle">
+          @if (currentStep > 2) {
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.check, { size: 12, color: '#ffffff' })"></span>
+          } @else {
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.camera, { size: 13, color: currentStep === 2 ? '#ffffff' : '#94a3b8' })"></span>
+          }
+        </div>
+        <span class="step-label">2. Photo</span>
       </div>
-      <div class="step-line" [class.done]="currentStep > 2"></div>
+
+      <div class="step-connector" [class.done]="currentStep > 2"></div>
 
       <div class="step-item" [class.active]="currentStep === 3" [class.done]="currentStep > 3">
-        <span class="step-num">3</span>
-        <span class="step-label">Sign</span>
+        <div class="step-circle">
+          @if (currentStep > 3) {
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.check, { size: 12, color: '#ffffff' })"></span>
+          } @else {
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.signature, { size: 13, color: currentStep === 3 ? '#ffffff' : '#94a3b8' })"></span>
+          }
+        </div>
+        <span class="step-label">3. Sign</span>
       </div>
-      <div class="step-line" [class.done]="currentStep > 3"></div>
+
+      <div class="step-connector" [class.done]="currentStep > 3"></div>
 
       <div class="step-item" [class.active]="currentStep === 4" [class.done]="currentStep === 5">
-        <span class="step-num">4</span>
-        <span class="step-label">Submit</span>
+        <div class="step-circle">
+          @if (currentStep === 5) {
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.check, { size: 12, color: '#ffffff' })"></span>
+          } @else {
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.satellite, { size: 13, color: currentStep === 4 ? '#ffffff' : '#94a3b8' })"></span>
+          }
+        </div>
+        <span class="step-label">4. Submit</span>
       </div>
-    </div>
+    </nav>
   </header>
 
-  <!-- Step Content -->
-  <main class="driver-body">
-    <!-- STEP 1: QR SCAN -->
+  <!-- Main Driver Mobile Screen Body -->
+  <main class="driver-content">
+    <!-- ================= STEP 1: QR CODE SCAN ================= -->
     @if (currentStep === 1) {
       <div class="step-card">
         <div class="step-card-header">
-          <h2>Step 1: Scan Package QR Code</h2>
-          <p>Scan the code on the shipping label to start delivery.</p>
+          <div class="step-icon-badge" [innerHTML]="iconService.getSafeSvg(iconService.icons.qrcode, { size: 20, color: '#2563eb' })"></div>
+          <div>
+            <h2>Scan Package Label</h2>
+            <p>Scan shipping QR code with camera or type tracking number.</p>
+          </div>
         </div>
 
         @if (scanError) {
-          <div class="error-banner">{{ scanError }}</div>
+          <div class="error-banner">
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.danger, { size: 15, color: '#dc2626' })"></span>
+            <span>{{ scanError }}</span>
+          </div>
         }
 
-        <div class="camera-section">
+        <div class="scanner-container">
           @if (isScanning) {
-            <div id="qr-reader" class="qr-camera-box"></div>
+            <div class="camera-active-frame">
+              <div id="qr-reader" class="qr-camera-viewport"></div>
+              <div class="scanner-aim-guide">
+                <div class="aim-corner tl"></div>
+                <div class="aim-corner tr"></div>
+                <div class="aim-corner bl"></div>
+                <div class="aim-corner br"></div>
+                <div class="aim-laser"></div>
+              </div>
+            </div>
             <button type="button" class="btn-cancel-scan" (click)="stopCameraScanner()">
-              ✕ Stop Camera Scanner
+              <span [innerHTML]="iconService.getSafeSvg(iconService.icons.close, { size: 14, color: '#dc2626' })"></span>
+              <span>Stop Camera Scanner</span>
             </button>
           } @else {
-            <button type="button" class="btn-start-scan" (click)="startCameraScanner()">
-              📷 Open Camera QR Scanner
+            <button type="button" class="btn-primary-action" (click)="startCameraScanner()">
+              <span [innerHTML]="iconService.getSafeSvg(iconService.icons.camera, { size: 18, color: '#ffffff' })"></span>
+              <span>Open Camera Scanner</span>
             </button>
           }
         </div>
 
-        <div class="divider">
-          <span>OR ENTER CODE MANUALLY</span>
+        <div class="divider-or">
+          <span>OR ENTER TRACKING NUMBER</span>
         </div>
 
-        <div class="manual-entry-box">
-          <input
-            type="text"
-            [(ngModel)]="manualCode"
-            placeholder="e.g. TRK-987654321 or DEL-10001"
-            (keyup.enter)="submitManualCode()"
-          />
-          <button type="button" class="btn-submit-code" (click)="submitManualCode()">
-            Lookup Package
+        <div class="manual-entry-form">
+          <div class="manual-input-wrap">
+            <input
+              type="text"
+              [(ngModel)]="manualCode"
+              placeholder="e.g. TRK-987654321"
+              (keyup.enter)="submitManualCode()"
+              autocomplete="off"
+            />
+          </div>
+          <button type="button" class="btn-search-code" (click)="submitManualCode()">
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.search, { size: 16, color: '#ffffff' })"></span>
+            <span>Lookup</span>
           </button>
         </div>
       </div>
     }
 
-    <!-- STEP 2: PHOTO PROOF -->
+    <!-- ================= STEP 2: PHOTO CAPTURE ================= -->
     @if (currentStep === 2 && activeDelivery) {
       <div class="step-card">
-        <div class="delivery-meta-banner">
-          <div>
-            <strong>{{ activeDelivery.recipient_name }}</strong>
-            <p>{{ activeDelivery.delivery_address }}</p>
+        <!-- Delivery Summary Banner -->
+        <div class="delivery-summary-card">
+          <div class="summary-top">
+            <span class="tracking-pill">
+              <span [innerHTML]="iconService.getSafeSvg(iconService.icons.box, { size: 12, color: '#2563eb' })"></span>
+              {{ activeDelivery.tracking_number }}
+            </span>
+            <span class="status-pill-active">In Transit</span>
           </div>
-          <span class="code-badge">{{ activeDelivery.tracking_number }}</span>
+          <div class="recipient-details">
+            <h3 class="recipient-name">{{ activeDelivery.recipient_name }}</h3>
+            <p class="recipient-address">
+              <span [innerHTML]="iconService.getSafeSvg(iconService.icons.location, { size: 13, color: '#64748b' })"></span>
+              {{ activeDelivery.delivery_address }}
+            </p>
+          </div>
         </div>
 
         <div class="step-card-header">
-          <h2>Step 2: Capture Proof of Delivery Photo</h2>
-          <p>Take a clear photo showing the package placed at the destination.</p>
+          <div class="step-icon-badge" [innerHTML]="iconService.getSafeSvg(iconService.icons.camera, { size: 20, color: '#2563eb' })"></div>
+          <div>
+            <h2>Package Placement Photo</h2>
+            <p>Take a clear photo showing where the package was left.</p>
+          </div>
         </div>
 
         @if (photoError) {
-          <div class="error-banner">{{ photoError }}</div>
+          <div class="error-banner">
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.danger, { size: 15, color: '#dc2626' })"></span>
+            <span>{{ photoError }}</span>
+          </div>
         }
 
-        <div class="photo-capture-area">
+        <div class="photo-upload-wrapper">
           @if (capturedPhotoPreview) {
-            <div class="preview-box">
+            <div class="captured-preview-card">
               <img [src]="capturedPhotoPreview" alt="Proof of delivery preview" class="preview-img" />
-              <button type="button" class="btn-retake" (click)="retakePhoto()">Retake Photo</button>
+              <button type="button" class="btn-retake-photo" (click)="retakePhoto()">
+                <span [innerHTML]="iconService.getSafeSvg(iconService.icons.rotate, { size: 14, color: '#475569' })"></span>
+                <span>Retake Photo</span>
+              </button>
             </div>
           } @else {
-            <label class="camera-upload-btn">
+            <label class="camera-touch-tile">
               <input
                 type="file"
                 accept="image/*"
                 capture="environment"
                 (change)="onPhotoSelected($event)"
               />
-              <span class="cam-icon">📸</span>
-              <span class="cam-label">Take Package Photo</span>
+              <div class="camera-tile-icon" [innerHTML]="iconService.getSafeSvg(iconService.icons.camera, { size: 40, color: '#2563eb' })"></div>
+              <span class="camera-tile-title">Capture Package Photo</span>
+              <span class="camera-tile-subtitle">Tap here to launch camera viewfinder</span>
             </label>
           }
         </div>
 
-        <div class="step-nav-footer">
-          <button type="button" class="btn-back" (click)="currentStep = 1">← Back</button>
+        <div class="step-nav-actions">
+          <button type="button" class="btn-nav-secondary" (click)="currentStep = 1">
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.arrowLeft, { size: 14, color: '#475569' })"></span>
+            <span>Back</span>
+          </button>
           <button
             type="button"
-            class="btn-forward"
+            class="btn-nav-primary"
             [disabled]="!capturedPhotoFile"
             (click)="proceedToSignature()"
           >
-            Next: Customer Signature →
+            <span>Next: Signature</span>
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.arrowRight, { size: 14, color: '#ffffff' })"></span>
           </button>
         </div>
       </div>
     }
 
-    <!-- STEP 3: SIGNATURE CANVAS -->
+    <!-- ================= STEP 3: TOUCH SIGNATURE ================= -->
     @if (currentStep === 3 && activeDelivery) {
       <div class="step-card">
         <div class="step-card-header">
-          <h2>Step 3: Collect Customer Signature</h2>
-          <p>Please present your device to the recipient to sign below.</p>
+          <div class="step-icon-badge" [innerHTML]="iconService.getSafeSvg(iconService.icons.signature, { size: 20, color: '#2563eb' })"></div>
+          <div>
+            <h2>Customer Signature</h2>
+            <p>Please present the screen to the customer to sign.</p>
+          </div>
         </div>
 
         @if (sigError) {
-          <div class="error-banner">{{ sigError }}</div>
+          <div class="error-banner">
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.danger, { size: 15, color: '#dc2626' })"></span>
+            <span>{{ sigError }}</span>
+          </div>
         }
 
-        <div class="signature-canvas-container">
+        <div class="signature-touch-area">
+          <div class="signature-guideline">Sign on the line below</div>
           <canvas
             #signatureCanvas
-            class="sig-canvas"
+            class="signature-canvas"
             (mousedown)="startDraw($event)"
             (mousemove)="draw($event)"
-            (mouseup)="endDraw()"
-            (mouseleave)="endDraw()"
+            (mouseup)="endDraw($event)"
+            (mouseleave)="endDraw($event)"
             (touchstart)="startDraw($event)"
             (touchmove)="draw($event)"
-            (touchend)="endDraw()"
+            (touchend)="endDraw($event)"
+            (touchcancel)="endDraw($event)"
           ></canvas>
-          <div class="canvas-actions">
-            <button type="button" class="btn-clear-sig" (click)="clearSignature()">Clear Signature</button>
+
+          <div class="signature-toolbar">
+            <span class="touch-hint">Use finger or stylus</span>
+            <button type="button" class="btn-clear-canvas" (click)="clearSignature()">
+              <span [innerHTML]="iconService.getSafeSvg(iconService.icons.rotate, { size: 13, color: '#dc2626' })"></span>
+              <span>Clear Signature</span>
+            </button>
           </div>
         </div>
 
-        <div class="step-nav-footer">
-          <button type="button" class="btn-back" (click)="currentStep = 2">← Back to Photo</button>
-          <button type="button" class="btn-forward" (click)="proceedToReview()">
-            Next: Review & Submit →
+        <div class="step-nav-actions">
+          <button type="button" class="btn-nav-secondary" (click)="currentStep = 2">
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.arrowLeft, { size: 14, color: '#475569' })"></span>
+            <span>Back</span>
+          </button>
+          <button type="button" class="btn-nav-primary" (click)="proceedToReview()">
+            <span>Next: Review & GPS</span>
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.arrowRight, { size: 14, color: '#ffffff' })"></span>
           </button>
         </div>
       </div>
     }
 
-    <!-- STEP 4: GEOLOCATION & SUBMISSION -->
+    <!-- ================= STEP 4: GEOLOCATION & FINAL SUBMIT ================= -->
     @if (currentStep === 4 && activeDelivery) {
       <div class="step-card">
         <div class="step-card-header">
-          <h2>Step 4: Geolocation & Submission</h2>
-          <p>Confirm delivery artifacts and finalize delivery.</p>
+          <div class="step-icon-badge" [innerHTML]="iconService.getSafeSvg(iconService.icons.satellite, { size: 20, color: '#2563eb' })"></div>
+          <div>
+            <h2>Review & Submit Delivery</h2>
+            <p>Verify captured proof artifacts and confirm coordinates.</p>
+          </div>
         </div>
 
         @if (submitError) {
-          <div class="error-banner">{{ submitError }}</div>
+          <div class="error-banner">
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.danger, { size: 15, color: '#dc2626' })"></span>
+            <span>{{ submitError }}</span>
+          </div>
         }
 
         @if (gpsError) {
-          <div class="warning-banner">{{ gpsError }}</div>
+          <div class="warning-banner">
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.warning, { size: 15, color: '#b45309' })"></span>
+            <span>{{ gpsError }}</span>
+          </div>
         }
 
-        <!-- Artifacts Summary -->
-        <div class="summary-artifacts">
-          <div class="summary-item">
-            <span class="summary-label">Photo Proof:</span>
-            <img [src]="capturedPhotoPreview" alt="PoD Photo" class="mini-thumb" />
+        <!-- Artifacts Visual Preview -->
+        <div class="review-artifacts-grid">
+          <div class="artifact-preview-card">
+            <div class="artifact-label">
+              <span [innerHTML]="iconService.getSafeSvg(iconService.icons.camera, { size: 12, color: '#64748b' })"></span>
+              <span>Photo Proof</span>
+            </div>
+            <div class="artifact-image-wrap">
+              <img [src]="capturedPhotoPreview" alt="PoD Photo" />
+            </div>
           </div>
-          <div class="summary-item">
-            <span class="summary-label">Signature:</span>
-            <img [src]="signatureDataUrl" alt="Signature" class="mini-thumb sig-thumb" />
+
+          <div class="artifact-preview-card">
+            <div class="artifact-label">
+              <span [innerHTML]="iconService.getSafeSvg(iconService.icons.signature, { size: 12, color: '#64748b' })"></span>
+              <span>Customer Signature</span>
+            </div>
+            <div class="artifact-image-wrap sig-bg">
+              <img [src]="signatureDataUrl" alt="Signature" />
+            </div>
           </div>
         </div>
 
-        <!-- GPS Coordinates Card -->
-        <div class="gps-status-card">
-          <div class="gps-icon">📍</div>
-          <div class="gps-info">
-            <strong>Logged Delivery Coordinates:</strong>
+        <!-- GPS Geolocation Acquisition Card -->
+        <div class="gps-coords-card">
+          <div class="gps-icon-box" [innerHTML]="iconService.getSafeSvg(iconService.icons.locationCrosshairs, { size: 22, color: '#2563eb' })"></div>
+          <div class="gps-details">
+            <span class="gps-title">GPS Delivery Location:</span>
             @if (isLocating) {
-              <span>Acquiring GPS location...</span>
+              <div class="gps-acquiring">
+                <span class="spinner-small"></span>
+                <span>Locking onto GPS satellites...</span>
+              </div>
             } @else if (gpsCoords) {
-              <code>{{ gpsCoords.latitude }}, {{ gpsCoords.longitude }}</code>
-              @if (gpsCoords.accuracy) {
-                <small>(Accuracy: ±{{ gpsCoords.accuracy }}m)</small>
-              }
+              <div class="gps-value-row">
+                <code class="gps-latlong">{{ gpsCoords.latitude }}, {{ gpsCoords.longitude }}</code>
+                @if (gpsCoords.accuracy) {
+                  <span class="accuracy-badge">±{{ gpsCoords.accuracy }}m</span>
+                }
+              </div>
             }
           </div>
-          <button type="button" class="btn-refresh-gps" (click)="acquireGeolocation()">↻ Refresh</button>
+          <button type="button" class="btn-refresh-gps" (click)="acquireGeolocation()" title="Refresh GPS coordinates">
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.refresh, { size: 14, color: '#475569' })"></span>
+          </button>
         </div>
 
-        <div class="step-nav-footer">
-          <button type="button" class="btn-back" (click)="currentStep = 3">← Back to Signature</button>
+        <div class="step-nav-actions">
+          <button type="button" class="btn-nav-secondary" (click)="currentStep = 3">
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.arrowLeft, { size: 14, color: '#475569' })"></span>
+            <span>Back</span>
+          </button>
           <button
             type="button"
-            class="btn-complete"
+            class="btn-complete-delivery"
             [disabled]="isSubmitting"
             (click)="submitPoD()"
           >
-            {{ isSubmitting ? 'Submitting Delivery...' : '✓ Complete Delivery' }}
+            @if (isSubmitting) {
+              <span class="spinner-small-light"></span>
+              <span>Submitting Proof of Delivery...</span>
+            } @else {
+              <span [innerHTML]="iconService.getSafeSvg(iconService.icons.circleCheck, { size: 18, color: '#ffffff' })"></span>
+              <span>Complete Delivery</span>
+            }
           </button>
         </div>
       </div>
     }
 
-    <!-- STEP 5: SUCCESS -->
+    <!-- ================= STEP 5: SUCCESS CONFIRMATION ================= -->
     @if (currentStep === 5) {
       <div class="step-card success-card">
-        <div class="success-check-icon">✓</div>
-        <h2>Delivery Completed!</h2>
-        <p class="success-message">
-          Proof of Delivery, customer signature, and geolocation coordinates have been securely uploaded.
-          The Admin management portal was alerted in real time.
+        <div class="success-icon-box" [innerHTML]="iconService.getSafeSvg(iconService.icons.circleCheck, { size: 60, color: '#10b981' })"></div>
+        <h2 class="success-title">Delivery Successfully Logged!</h2>
+        <p class="success-desc">
+          Proof of Delivery photo, customer touch signature, and GPS coordinates have been securely saved and logged into immutable audit records.
         </p>
 
+        <div class="success-disclaimer">
+          <span [innerHTML]="iconService.getSafeSvg(iconService.icons.broadcast, { size: 14, color: '#2563eb' })"></span>
+          <span>Admin dashboard alerted in real time via WebSockets.</span>
+        </div>
+
         <button type="button" class="btn-deliver-next" (click)="resetWorkflow()">
-          🚚 Deliver Next Package
+          <span [innerHTML]="iconService.getSafeSvg(iconService.icons.truckFast, { size: 18, color: '#ffffff' })"></span>
+          <span>Deliver Next Package</span>
         </button>
       </div>
     }

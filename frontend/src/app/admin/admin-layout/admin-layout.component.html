@@ -2,29 +2,45 @@
   <!-- Top Navigation Header -->
   <header class="admin-header">
     <div class="header-left">
-      <div class="brand">
+      <!-- Mobile / Tablet Hamburger Button -->
+      <button class="mobile-menu-btn" (click)="toggleMobileMenu()" aria-label="Toggle navigation">
+        @if (isMobileMenuOpen) {
+          <span [innerHTML]="iconService.getSafeSvg(icons.close, { size: 18 })"></span>
+        } @else {
+          <span [innerHTML]="iconService.getSafeSvg(icons.menu, { size: 18 })"></span>
+        }
+      </button>
+
+      <div class="brand" routerLink="/admin/deliveries">
         <div class="brand-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-          </svg>
+          <span [innerHTML]="iconService.getSafeSvg(icons.boxes, { size: 18, color: '#ffffff', marginRight: 0 })"></span>
         </div>
-        <span class="brand-title">DeliverMe Admin</span>
+        <div class="brand-text">
+          <span class="brand-title">DeliverMe</span>
+          <span class="brand-sub">Enterprise Portal</span>
+        </div>
       </div>
 
-      <nav class="nav-links">
+      <!-- Desktop Navigation Links -->
+      <nav class="nav-links desktop-only">
         <a routerLink="/admin/deliveries" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+          <span [innerHTML]="iconService.getSafeSvg(icons.truck, { size: 14 })"></span>
           Deliveries
         </a>
         <a routerLink="/admin/deliveries/new" routerLinkActive="active">
-          + Create Delivery
+          <span [innerHTML]="iconService.getSafeSvg(icons.plus, { size: 13 })"></span>
+          Create Delivery
         </a>
         <a routerLink="/admin/users" routerLinkActive="active">
+          <span [innerHTML]="iconService.getSafeSvg(icons.users, { size: 14 })"></span>
           User Provisioning
         </a>
         <a routerLink="/admin/audit-logs" routerLinkActive="active">
+          <span [innerHTML]="iconService.getSafeSvg(icons.audit, { size: 14 })"></span>
           Audit Logs
         </a>
         <a routerLink="/admin/ip-blocklist" routerLinkActive="active">
+          <span [innerHTML]="iconService.getSafeSvg(icons.shieldHalved, { size: 14 })"></span>
           IP Blocklist
         </a>
       </nav>
@@ -36,22 +52,64 @@
         <span class="status-label">{{ isConnected ? 'Live' : 'Offline' }}</span>
       </div>
 
-      <div class="user-profile">
+      <div class="user-profile desktop-only">
+        <span class="profile-avatar" [innerHTML]="iconService.getSafeSvg(icons.userShield, { size: 14, color: '#3b82f6', marginRight: 0 })"></span>
         <span class="user-name">{{ currentUser()?.full_name }}</span>
         <span class="user-role-badge">ADMIN</span>
       </div>
 
       <button class="logout-btn" (click)="logout()" title="Sign Out">
-        Sign Out
+        <span [innerHTML]="iconService.getSafeSvg(icons.logout, { size: 13 })"></span>
+        <span class="logout-text">Sign Out</span>
       </button>
     </div>
   </header>
+
+  <!-- Mobile / Tablet Collapsible Menu Drawer -->
+  @if (isMobileMenuOpen) {
+    <div class="mobile-nav-backdrop" (click)="closeMobileMenu()"></div>
+    <nav class="mobile-nav-drawer">
+      <div class="mobile-user-card">
+        <span class="profile-avatar" [innerHTML]="iconService.getSafeSvg(icons.userShield, { size: 16, color: '#3b82f6', marginRight: 0 })"></span>
+        <div>
+          <div class="user-name">{{ currentUser()?.full_name }}</div>
+          <span class="user-role-badge">ADMINISTRATOR</span>
+        </div>
+      </div>
+
+      <div class="mobile-nav-links">
+        <a routerLink="/admin/deliveries" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">
+          <span [innerHTML]="iconService.getSafeSvg(icons.truck, { size: 16 })"></span>
+          Deliveries Dashboard
+        </a>
+        <a routerLink="/admin/deliveries/new" routerLinkActive="active" (click)="closeMobileMenu()">
+          <span [innerHTML]="iconService.getSafeSvg(icons.plus, { size: 16 })"></span>
+          Dispatch Delivery
+        </a>
+        <a routerLink="/admin/users" routerLinkActive="active" (click)="closeMobileMenu()">
+          <span [innerHTML]="iconService.getSafeSvg(icons.users, { size: 16 })"></span>
+          User Provisioning
+        </a>
+        <a routerLink="/admin/audit-logs" routerLinkActive="active" (click)="closeMobileMenu()">
+          <span [innerHTML]="iconService.getSafeSvg(icons.audit, { size: 16 })"></span>
+          Security Audit Logs
+        </a>
+        <a routerLink="/admin/ip-blocklist" routerLinkActive="active" (click)="closeMobileMenu()">
+          <span [innerHTML]="iconService.getSafeSvg(icons.shieldHalved, { size: 16 })"></span>
+          Manual IP Blocklist
+        </a>
+      </div>
+    </nav>
+  }
 
   <!-- Real-time jQWidgets Notification container -->
   <div id="adminNotification">
     @if (latestAlert) {
       <div class="notification-body">
-        <strong>{{ latestAlert.title }}</strong>
+        <div class="notification-title-bar">
+          <span [innerHTML]="iconService.getSafeSvg(latestAlert.type === 'error' ? icons.danger : latestAlert.type === 'warning' ? icons.warning : icons.circleCheck, { size: 14 })"></span>
+          <strong>{{ latestAlert.title }}</strong>
+        </div>
         <p>{{ latestAlert.message }}</p>
         <small>{{ latestAlert.time }}</small>
       </div>

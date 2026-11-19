@@ -1,10 +1,11 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Html5Qrcode } from 'html5-qrcode';
 import { AuthService } from '../core/services/auth.service.js';
 import { DriverService } from '../core/services/driver.service.js';
+import { IconService } from '../core/services/icon.service.js';
 import { Delivery } from '../core/models/index.js';
 
 @Component({
@@ -18,6 +19,7 @@ export class DriverComponent implements AfterViewInit, OnDestroy {
   private authService = inject(AuthService);
   private driverService = inject(DriverService);
   private router = inject(Router);
+  iconService = inject(IconService);
 
   currentUser = this.authService.currentUser;
   currentStep: 1 | 2 | 3 | 4 | 5 = 1; // 5 is success
@@ -51,7 +53,17 @@ export class DriverComponent implements AfterViewInit, OnDestroy {
   constructor() {}
 
   ngAfterViewInit(): void {
-    // Canvas setup when reaching step 3
+    // Setup canvas if entering on step 3 directly
+    if (this.currentStep === 3) {
+      setTimeout(() => this.initCanvas(), 100);
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    if (this.currentStep === 3 && this.canvasRef && !this.hasSignature) {
+      this.initCanvas();
+    }
   }
 
   // ================= STEP 1: SCAN =================
@@ -66,8 +78,8 @@ export class DriverComponent implements AfterViewInit, OnDestroy {
           .start(
             { facingMode: 'environment' },
             {
-              fps: 10,
-              qrbox: { width: 250, height: 250 },
+              fps: 15,
+              qrbox: { width: 240, height: 240 },
             },
             (decodedText) => {
               this.stopCameraScanner();
@@ -76,12 +88,12 @@ export class DriverComponent implements AfterViewInit, OnDestroy {
             () => {}
           )
           .catch((err) => {
-            this.scanError = 'Unable to access camera. Please enter code manually.';
+            this.scanError = 'Unable to access device camera. Please type the tracking number manually below.';
             this.isScanning = false;
             console.warn('QR Camera start error:', err);
           });
       } catch (err) {
-        this.scanError = 'Scanner initialization failed. Use manual entry.';
+        this.scanError = 'Camera scanner could not initialize. Use manual tracking number lookup.';
         this.isScanning = false;
       }
     }, 100);
@@ -151,29 +163,40 @@ export class DriverComponent implements AfterViewInit, OnDestroy {
 
   proceedToSignature(): void {
     if (!this.capturedPhotoFile) {
-      this.photoError = 'Photo capture is required before proceeding.';
+      this.photoError = 'Proof of delivery photo is required before proceeding.';
       return;
     }
     this.currentStep = 3;
-    setTimeout(() => this.initCanvas(), 100);
+    setTimeout(() => this.initCanvas(), 120);
   }
 
   // ================= STEP 3: SIGNATURE =================
   initCanvas(): void {
     if (!this.canvasRef) return;
     const canvas = this.canvasRef.nativeElement;
-    canvas.width = canvas.parentElement?.clientWidth || 320;
-    canvas.height = 180;
+    const container = canvas.parentElement;
+    const containerWidth = container ? container.clientWidth : 340;
+    const containerHeight = Math.min(220, Math.max(180, Math.round(window.innerHeight * 0.28)));
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = containerWidth * dpr;
+    canvas.height = containerHeight * dpr;
+    canvas.style.width = `${containerWidth}px`;
+    canvas.style.height = `${containerHeight}px`;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    ctx.scale(dpr, dpr);
     ctx.strokeStyle = '#0f172a';
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2.8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
   }
 
   startDraw(e: MouseEvent | TouchEvent): void {
+    if ('touches' in e) {
+      e.preventDefault();
+    }
     this.isDrawing = true;
     this.hasSignature = true;
     this.sigError = '';
@@ -187,17 +210,25 @@ export class DriverComponent implements AfterViewInit, OnDestroy {
 
   draw(e: MouseEvent | TouchEvent): void {
     if (!this.isDrawing) return;
+    if ('touches' in e) {
+      e.preventDefault();
+    }
     const ctx = this.canvasRef?.nativeElement.getContext('2d');
     if (!ctx) return;
 
     const pos = this.getCanvasPos(e);
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
-    e.preventDefault();
   }
 
-  endDraw(): void {
-    this.isDrawing = false;
+  endDraw(e?: MouseEvent | TouchEvent): void {
+    if (this.isDrawing) {
+      this.isDrawing = false;
+      const ctx = this.canvasRef?.nativeElement.getContext('2d');
+      if (ctx) {
+        ctx.closePath();
+      }
+    }
   }
 
   clearSignature(): void {
@@ -205,7 +236,10 @@ export class DriverComponent implements AfterViewInit, OnDestroy {
     const canvas = this.canvasRef.nativeElement;
     const ctx = canvas.getContext('2d');
     if (ctx) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
     }
     this.hasSignature = false;
     this.signatureDataUrl = null;
@@ -245,7 +279,7 @@ export class DriverComponent implements AfterViewInit, OnDestroy {
     if (!('geolocation' in navigator)) {
       this.isLocating = false;
       this.gpsCoords = { latitude: 37.774929, longitude: -122.419418 };
-      this.gpsError = 'Geolocation API not supported. Standard coordinates assigned.';
+      this.gpsError = 'Geolocation API not supported on this browser. Fallback coordinates assigned.';
       return;
     }
 
@@ -261,7 +295,7 @@ export class DriverComponent implements AfterViewInit, OnDestroy {
       (err) => {
         this.isLocating = false;
         console.warn('Geolocation error:', err);
-        // Fallback GPS coordinates so workflow can still be submitted on desktop
+        // Fallback GPS coordinates so workflow can still be submitted on desktop/emulators
         this.gpsCoords = { latitude: 37.774929, longitude: -122.419418 };
         this.gpsError = 'GPS signal unavailable or permission declined. Default coordinates logged.';
       },

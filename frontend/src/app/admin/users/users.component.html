@@ -1,65 +1,140 @@
 <div class="users-container">
+  <!-- Page Header & Stats Summary -->
   <div class="section-header">
-    <div>
+    <div class="header-titles">
       <h2>User Provisioning</h2>
       <p class="section-desc">Create, manage, and configure Admin and Driver accounts.</p>
     </div>
-    <div>
-      <button id="openProvisionModalBtn" class="provision-btn" (click)="openProvisionModal()">
-        + Provision New User
-      </button>
+
+    <button id="openProvisionModalBtn" class="provision-btn" (click)="openProvisionModal()">
+      <span [innerHTML]="iconService.getSafeSvg(icons.userPlus, { size: 14, color: '#ffffff' })"></span>
+      Provision New User
+    </button>
+  </div>
+
+  <!-- Stat summary badges -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <span [innerHTML]="iconService.getSafeSvg(icons.users, { size: 16, color: '#2563eb', marginRight: 0 })"></span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ users.length }}</span>
+        <span class="stat-label">Total Users</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon purple">
+        <span [innerHTML]="iconService.getSafeSvg(icons.userShield, { size: 16, color: '#7c3aed', marginRight: 0 })"></span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ adminCount }}</span>
+        <span class="stat-label">Administrators</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon emerald">
+        <span [innerHTML]="iconService.getSafeSvg(icons.truck, { size: 16, color: '#059669', marginRight: 0 })"></span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ driverCount }}</span>
+        <span class="stat-label">Drivers</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon green">
+        <span [innerHTML]="iconService.getSafeSvg(icons.circleCheck, { size: 16, color: '#16a34a', marginRight: 0 })"></span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ activeCount }}</span>
+        <span class="stat-label">Active Accounts</span>
+      </div>
     </div>
   </div>
 
-  <!-- jQWidgets Users Grid -->
+  <!-- jQWidgets Users Grid Container -->
   <div class="grid-card">
+    <div class="grid-toolbar">
+      <div class="toolbar-title">
+        <span [innerHTML]="iconService.getSafeSvg(icons.userGear, { size: 14, color: '#475569' })"></span>
+        <strong>Registered User Accounts</strong>
+      </div>
+      <button class="refresh-grid-btn" (click)="loadUsers()" title="Refresh Users">
+        <span [innerHTML]="iconService.getSafeSvg(icons.rotate, { size: 13, color: '#64748b' })"></span>
+        Refresh
+      </button>
+    </div>
     <div id="usersGrid"></div>
   </div>
 
   <!-- jQWidgets Provisioning Window Modal -->
   <div id="userWindow">
     <div>
+      <span [innerHTML]="iconService.getSafeSvg(icons.userPlus, { size: 14, color: '#ffffff' })"></span>
       <strong>Provision New User Account</strong>
     </div>
     <div class="modal-body">
       @if (modalError) {
-        <div class="modal-alert error">{{ modalError }}</div>
+        <div class="modal-alert error">
+          <span [innerHTML]="iconService.getSafeSvg(icons.danger, { size: 14, color: '#dc2626' })"></span>
+          <span>{{ modalError }}</span>
+        </div>
       }
 
       <div class="form-group">
-        <label for="uName">Full Name *</label>
+        <label for="uName">
+          <span [innerHTML]="iconService.getSafeSvg(icons.userCheck, { size: 13, color: '#64748b' })"></span>
+          Full Name *
+        </label>
         <input id="uName" type="text" [(ngModel)]="newFullName" placeholder="e.g. Jane Driver" />
       </div>
 
       <div class="form-group">
-        <label for="uEmail">Email Address *</label>
+        <label for="uEmail">
+          <span [innerHTML]="iconService.getSafeSvg(icons.envelope, { size: 13, color: '#64748b' })"></span>
+          Email Address *
+        </label>
         <input id="uEmail" type="email" [(ngModel)]="newEmail" placeholder="e.g. jane@deliverme.local" />
       </div>
 
       <div class="form-group">
-        <label for="uPass">Password * (Min 8 characters)</label>
+        <label for="uPass">
+          <span [innerHTML]="iconService.getSafeSvg(icons.lock, { size: 13, color: '#64748b' })"></span>
+          Password * (Minimum 8 characters)
+        </label>
         <input id="uPass" type="password" [(ngModel)]="newPassword" placeholder="••••••••••••" />
       </div>
 
       <div class="form-group">
-        <label for="uRole">Role Assignment *</label>
+        <label for="uRole">
+          <span [innerHTML]="iconService.getSafeSvg(icons.shield, { size: 13, color: '#64748b' })"></span>
+          Role Assignment *
+        </label>
         <select id="uRole" [(ngModel)]="newRole">
-          <option value="DRIVER">Delivery Driver (Mobile Access)</option>
-          <option value="ADMIN">System Administrator (Full Access)</option>
+          <option value="DRIVER">Delivery Driver (Mobile & Tablet Access)</option>
+          <option value="ADMIN">System Administrator (Full Management Access)</option>
         </select>
       </div>
 
       <div class="form-checkbox">
         <label>
           <input type="checkbox" [(ngModel)]="newIsActive" />
-          <span>Account Active (Allowed to authenticate immediately)</span>
+          <span>Account Active (Allowed to sign in immediately)</span>
         </label>
       </div>
 
       <div class="modal-footer">
         <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
         <button type="button" id="saveUserBtn" class="btn-save" [disabled]="isSaving" (click)="saveUser()">
-          {{ isSaving ? 'Provisioning...' : 'Create Account' }}
+          @if (isSaving) {
+            <span>Provisioning...</span>
+          } @else {
+            <span [innerHTML]="iconService.getSafeSvg(icons.check, { size: 13, color: '#ffffff' })"></span>
+            <span>Create Account</span>
+          }
         </button>
       </div>
     </div>

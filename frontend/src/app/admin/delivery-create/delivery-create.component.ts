@@ -1,8 +1,9 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AdminService } from '../../core/services/admin.service.js';
+import { IconService } from '../../core/services/icon.service.js';
 
 declare var $: any;
 
@@ -14,6 +15,11 @@ declare var $: any;
   styleUrls: ['./delivery-create.component.css'],
 })
 export class DeliveryCreateComponent implements OnInit, AfterViewInit {
+  private adminService = inject(AdminService);
+  private router = inject(Router);
+  readonly iconService = inject(IconService);
+  readonly icons = this.iconService.icons;
+
   deliveryNumber = '';
   trackingNumber = '';
   recipientName = '';
@@ -24,8 +30,6 @@ export class DeliveryCreateComponent implements OnInit, AfterViewInit {
   isLoading = false;
   errorMessage = '';
   successDelivery: any = null;
-
-  constructor(private adminService: AdminService, private router: Router) {}
 
   ngOnInit(): void {
     this.generateNumbers();

@@ -1,79 +1,146 @@
 <div class="deliveries-container">
+  <!-- Section Header -->
   <div class="section-header">
-    <div>
+    <div class="header-titles">
       <h2>Deliveries Dashboard</h2>
-      <p class="section-desc">Manage, track, and review active and completed package deliveries.</p>
+      <p class="section-desc">Dispatch, monitor, and inspect real-time package deliveries and Proof-of-Delivery records.</p>
     </div>
+
     <div class="header-actions">
       <div class="filter-pills">
-        <button [class.active]="currentFilter === 'all'" (click)="setFilter('all')">All</button>
-        <button [class.active]="currentFilter === 'active'" (click)="setFilter('active')">Active</button>
-        <button [class.active]="currentFilter === 'past'" (click)="setFilter('past')">Past / Delivered</button>
+        <button [class.active]="currentFilter === 'all'" (click)="setFilter('all')">
+          All
+        </button>
+        <button [class.active]="currentFilter === 'active'" (click)="setFilter('active')">
+          <span [innerHTML]="iconService.getSafeSvg(icons.truck, { size: 12 })"></span>
+          Active
+        </button>
+        <button [class.active]="currentFilter === 'past'" (click)="setFilter('past')">
+          <span [innerHTML]="iconService.getSafeSvg(icons.circleCheck, { size: 12 })"></span>
+          Completed
+        </button>
       </div>
-      <a routerLink="/admin/deliveries/new" class="create-btn">+ New Delivery</a>
+
+      <a routerLink="/admin/deliveries/new" class="create-btn">
+        <span [innerHTML]="iconService.getSafeSvg(icons.plus, { size: 13, color: '#ffffff' })"></span>
+        New Delivery
+      </a>
     </div>
   </div>
 
-  <!-- jQWidgets Grid Container -->
+  <!-- Summary Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <span [innerHTML]="iconService.getSafeSvg(icons.boxes, { size: 16, color: '#2563eb', marginRight: 0 })"></span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ totalCount }}</span>
+        <span class="stat-label">Total Deliveries</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon amber">
+        <span [innerHTML]="iconService.getSafeSvg(icons.clock, { size: 16, color: '#d97706', marginRight: 0 })"></span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ activeCount }}</span>
+        <span class="stat-label">In Progress</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon emerald">
+        <span [innerHTML]="iconService.getSafeSvg(icons.circleCheck, { size: 16, color: '#059669', marginRight: 0 })"></span>
+      </div>
+      <div class="stat-details">
+        <span class="stat-number">{{ completedCount }}</span>
+        <span class="stat-label">Delivered & Verified</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- jQWidgets Deliveries Grid Container -->
   <div class="grid-card">
+    <div class="grid-toolbar">
+      <div class="toolbar-title">
+        <span [innerHTML]="iconService.getSafeSvg(icons.truckFast, { size: 14, color: '#475569' })"></span>
+        <strong>Deliveries Manifest</strong>
+      </div>
+      <button class="refresh-grid-btn" (click)="loadDeliveries()" title="Refresh Deliveries">
+        <span [innerHTML]="iconService.getSafeSvg(icons.rotate, { size: 13, color: '#64748b' })"></span>
+        Refresh
+      </button>
+    </div>
     <div id="deliveriesGrid"></div>
   </div>
 
   <!-- jQWidgets PoD Artifacts Modal Window -->
   <div id="podWindow">
     <div>
-      <strong>Delivery & Proof-of-Delivery (PoD) Details</strong>
+      <span [innerHTML]="iconService.getSafeSvg(icons.fileSignature, { size: 14, color: '#ffffff' })"></span>
+      <strong>Proof-of-Delivery (PoD) Artifacts & Details</strong>
     </div>
     <div class="pod-modal-content">
       @if (selectedDelivery) {
         <div class="details-grid">
           <div class="detail-item">
-            <span class="detail-label">Tracking Number:</span>
+            <span class="detail-label">Tracking Number</span>
             <span class="detail-val mono">{{ selectedDelivery.tracking_number }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Delivery Number:</span>
+            <span class="detail-label">Delivery Reference</span>
             <span class="detail-val mono">{{ selectedDelivery.delivery_number }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Recipient:</span>
+            <span class="detail-label">Recipient Name</span>
             <span class="detail-val">{{ selectedDelivery.recipient_name }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Address:</span>
+            <span class="detail-label">Destination Address</span>
             <span class="detail-val">{{ selectedDelivery.delivery_address }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Assigned Driver:</span>
+            <span class="detail-label">Assigned Driver</span>
             <span class="detail-val">{{ selectedDelivery.assigned_driver_name || 'Unassigned' }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Current Status:</span>
+            <span class="detail-label">Delivery Status</span>
             <span class="detail-val status-tag">{{ selectedDelivery.status }}</span>
           </div>
         </div>
 
         @if (selectedDelivery.status === 'DELIVERED') {
           <div class="pod-artifacts-section">
-            <h4>Proof of Delivery Artifacts</h4>
+            <h4>
+              <span [innerHTML]="iconService.getSafeSvg(icons.shield, { size: 14, color: '#059669' })"></span>
+              Verified Delivery Evidence
+            </h4>
             <div class="artifacts-grid">
               <!-- PoD Photo -->
               <div class="artifact-card">
-                <span class="artifact-title">Delivered Package Photo</span>
+                <span class="artifact-title">
+                  <span [innerHTML]="iconService.getSafeSvg(icons.camera, { size: 12, color: '#475569' })"></span>
+                  Package Photo Proof
+                </span>
                 @if (photoUrl) {
                   <img [src]="photoUrl" alt="Delivery Photo" class="artifact-img" />
                 } @else {
-                  <div class="artifact-placeholder">Loading secure photo...</div>
+                  <div class="artifact-placeholder">Loading authenticated photo...</div>
                 }
               </div>
 
               <!-- PoD Signature -->
               <div class="artifact-card">
-                <span class="artifact-title">Customer Signature</span>
+                <span class="artifact-title">
+                  <span [innerHTML]="iconService.getSafeSvg(icons.signature, { size: 12, color: '#475569' })"></span>
+                  Customer Signature
+                </span>
                 @if (signatureUrl) {
                   <img [src]="signatureUrl" alt="Customer Signature" class="artifact-img signature-bg" />
                 } @else {
-                  <div class="artifact-placeholder">Loading secure signature...</div>
+                  <div class="artifact-placeholder">Loading authenticated signature...</div>
                 }
               </div>
             </div>
@@ -82,8 +149,9 @@
             @if (selectedDelivery.latitude && selectedDelivery.longitude) {
               <div class="gps-info-box">
                 <div class="gps-text">
-                  <strong>GPS Geolocation:</strong>
-                  <span>{{ selectedDelivery.latitude }}, {{ selectedDelivery.longitude }}</span>
+                  <span [innerHTML]="iconService.getSafeSvg(icons.locationCrosshairs, { size: 15, color: '#2563eb' })"></span>
+                  <strong>Logged GPS Coordinates:</strong>
+                  <code>{{ selectedDelivery.latitude }}, {{ selectedDelivery.longitude }}</code>
                 </div>
                 <a
                   [href]="'https://www.openstreetmap.org/?mlat=' + selectedDelivery.latitude + '&mlon=' + selectedDelivery.longitude + '#map=17/' + selectedDelivery.latitude + '/' + selectedDelivery.longitude"
@@ -91,20 +159,23 @@
                   rel="noopener noreferrer"
                   class="map-link-btn"
                 >
-                  View on Map ↗
+                  <span [innerHTML]="iconService.getSafeSvg(icons.mapLocation, { size: 12, color: '#ffffff' })"></span>
+                  View Map
                 </a>
               </div>
             }
 
             @if (selectedDelivery.completed_at) {
               <div class="timestamp-text">
+                <span [innerHTML]="iconService.getSafeSvg(icons.clock, { size: 12, color: '#64748b' })"></span>
                 Completed at: {{ selectedDelivery.completed_at | date:'medium' }}
               </div>
             }
           </div>
         } @else {
           <div class="pending-notice">
-            <span>⏳ This delivery is currently <strong>{{ selectedDelivery.status }}</strong>. Proof-of-delivery artifacts will appear here once completed by the driver.</span>
+            <span [innerHTML]="iconService.getSafeSvg(icons.clock, { size: 16, color: '#d97706' })"></span>
+            <span>This delivery is currently <strong>{{ selectedDelivery.status }}</strong>. Proof-of-delivery photo, signature, and coordinates will appear here once the driver completes delivery.</span>
           </div>
         }
 

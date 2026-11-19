@@ -1,20 +1,14 @@
 <div class="login-wrapper">
   <div class="login-card">
     <div class="login-header">
-      <div class="logo-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1"></path>
-          <path d="M18 8h4a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-4"></path>
-          <circle cx="5.5" cy="18.5" r="2.5"></circle>
-          <circle cx="18.5" cy="18.5" r="2.5"></circle>
-        </svg>
-      </div>
+      <div class="logo-badge" [innerHTML]="iconService.getSafeSvg(iconService.icons.truckFast, { size: 28, color: '#ffffff' })"></div>
       <h2>DeliverMe Portal</h2>
-      <p class="subtitle">Secure Delivery & Proof-of-Delivery System</p>
+      <p class="subtitle">Proof-of-Delivery & Fleet Management System</p>
     </div>
 
     @if (errorMessage) {
       <div class="alert-box error">
+        <span [innerHTML]="iconService.getSafeSvg(iconService.icons.danger, { size: 16, color: '#dc2626' })"></span>
         <span>{{ errorMessage }}</span>
       </div>
     }
@@ -22,46 +16,56 @@
     <form (ngSubmit)="onSubmit()" class="login-form">
       <div class="form-group">
         <label for="email">Email Address</label>
-        <input
-          id="email"
-          type="email"
-          name="email"
-          [(ngModel)]="email"
-          placeholder="admin@deliverme.local"
-          required
-          autocomplete="username"
-        />
+        <div class="input-with-icon">
+          <span class="field-icon" [innerHTML]="iconService.getSafeSvg(iconService.icons.envelope, { size: 14, color: '#64748b' })"></span>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="admin@deliverme.local"
+            required
+            autocomplete="username"
+          />
+        </div>
       </div>
 
       <div class="form-group">
         <label for="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          name="password"
-          [(ngModel)]="password"
-          placeholder="••••••••••••"
-          required
-          autocomplete="current-password"
-        />
+        <div class="input-with-icon">
+          <span class="field-icon" [innerHTML]="iconService.getSafeSvg(iconService.icons.lock, { size: 14, color: '#64748b' })"></span>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="••••••••••••"
+            required
+            autocomplete="current-password"
+          />
+        </div>
       </div>
 
       <button type="submit" class="submit-btn" [disabled]="isLoading">
         @if (isLoading) {
-          <span>Signing in...</span>
+          <span class="spinner-inline"></span>
+          <span>Authenticating...</span>
         } @else {
-          <span>Sign In</span>
+          <span [innerHTML]="iconService.getSafeSvg(iconService.icons.lock, { size: 14, color: '#ffffff' })"></span>
+          <span>Sign In to Dashboard</span>
         }
       </button>
 
       <div class="quick-fill-section">
-        <span class="quick-fill-label">Quick Sign-In Presets:</span>
+        <span class="quick-fill-label">Quick Preset Fill:</span>
         <div class="quick-fill-buttons">
           <button type="button" class="preset-btn admin" (click)="fillAdmin()">
-            🛡️ Admin Preset
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.userShield, { size: 14, color: '#2563eb' })"></span>
+            <span>Admin Preset</span>
           </button>
           <button type="button" class="preset-btn driver" (click)="fillDriver()">
-            🚚 Driver Preset
+            <span [innerHTML]="iconService.getSafeSvg(iconService.icons.truck, { size: 14, color: '#059669' })"></span>
+            <span>Driver Preset</span>
           </button>
         </div>
       </div>
